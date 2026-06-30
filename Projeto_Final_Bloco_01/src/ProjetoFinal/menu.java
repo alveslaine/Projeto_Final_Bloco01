@@ -76,5 +76,4 @@ public class menu {
 			System.out.println(Cores.TEXT_PINK + "\nPressione Enter para continuar..." + Cores.TEXT_RESET);
 			leia.nextLine();
 		}
-		
 	}
