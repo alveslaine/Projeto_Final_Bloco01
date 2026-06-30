@@ -65,9 +65,9 @@ public abstract class Produto {
 		System.out.printf("                    DADOS DO PRODUTO                   \n");
 		System.out.printf("=======================================================\n");
 		System.out.printf("ID do produto: %d%n", this.id);
-		System.out.printf("Nome do produto: %d%n", this.nome);
+		System.out.printf("Nome do produto: %s%n", this.nome);
 		System.out.printf("Tipo de Produto: %d%n", this.tipo);
-		System.out.printf("Valor do produto: %s%n", this.preco);
+		System.out.printf("Valor do produto: %.2f%n", this.preco);
 
 	}
 }

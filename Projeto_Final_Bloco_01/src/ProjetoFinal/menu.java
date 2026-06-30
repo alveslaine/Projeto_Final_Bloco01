@@ -1,16 +1,25 @@
 package ProjetoFinal;
 
 import java.util.InputMismatchException;
+import java.util.Optional;
 import java.util.Scanner;
 
+import ProjetoFinal.Controller.HairMagiaController;
+import ProjetoFinal.model.CremePentear;
+import ProjetoFinal.model.Mascara;
+import ProjetoFinal.model.Produto;
+import ProjetoFinal.model.ShampooCondicionador;
 import ProjetoFinal.util.Cores;
 
 public class menu {
-	private static final Scanner leia = new Scanner (System.in);
+	private static final Scanner leia = new Scanner(System.in);
+	private static String entrada;
+	private static HairMagiaController hairMagiaController = new HairMagiaController();
 		
 		public static void main(String[] args) {
 			
 			int opcao;
+			criarProdutosTeste();
 
 			while (true) {
 				System.out.println(Cores.TEXT_WHITE +"=======================================================");
@@ -41,22 +50,27 @@ public class menu {
 				switch (opcao) {
 					case 1:
 						System.out.println(Cores.TEXT_PINK + "Cadastrar Produto\n" + Cores.TEXT_RESET);
+						cadastrarProduto();
 						keyPress();
 						break;
 					case 2:
 						System.out.println(Cores.TEXT_PINK +"Listar Todos os Produtos\n" + Cores.TEXT_RESET);
+						ListarProdutos();
 						keyPress();
 						break;
 					case 3:
 						System.out.println(Cores.TEXT_PINK +"Consultar Produto pelo ID" + Cores.TEXT_RESET);
+						procurarPorID();
 						keyPress();
 						break;
 					case 4:
 						System.out.println(Cores.TEXT_PINK +"Atualizar dados do Produto\n" + Cores.TEXT_RESET);
+						atualizarProduto();
 						keyPress();
 						break;
 					case 5:
 						System.out.println(Cores.TEXT_PINK +"Deletar Produto\n" + Cores.TEXT_RESET);
+						deletarProduto();
 						keyPress();
 						break;
 					default:
@@ -76,4 +90,103 @@ public class menu {
 			System.out.println(Cores.TEXT_PINK + "\nPressione Enter para continuar..." + Cores.TEXT_RESET);
 			leia.nextLine();
 		}
-	}
+		
+		public static void criarProdutosTeste() {
+
+		}		
+		public static void ListarProdutos() {
+			    hairMagiaController.listarTodas();
+		}
+		public static void cadastrarProduto() {
+
+		    System.out.printf("Digite o nome do Produto: ");
+		    String nome = leia.next();
+
+		    System.out.printf("Digite o valor do produto: ");
+		    float preco = leia.nextFloat();
+
+		    System.out.printf("Digite o tipo de produto (1-Mascara / 2-ShampooCond / 3-Creme): ");
+		    int tipo = leia.nextInt();
+		    switch (tipo) {
+		        case 1:
+		            hairMagiaController.cadastrar(
+		                new Mascara(hairMagiaController.gerarId(), nome, tipo, preco));
+		            break;
+
+		        case 2:
+		            hairMagiaController.cadastrar(
+		                new ShampooCondicionador(hairMagiaController.gerarId(), nome, tipo, preco));
+		            break;
+
+		        case 3:
+		            hairMagiaController.cadastrar(
+		                new CremePentear(hairMagiaController.gerarId(), nome, tipo, preco));
+		            break;
+
+		        default:
+		            System.out.println("Tipo de produto inválido!");
+		    }
+		}
+		public static void procurarPorID() {
+			System.out.printf("Digite o ID do produto: ");
+			int id = leia.nextInt();
+			leia.nextLine();
+			
+			hairMagiaController.procurarPorID(id);
+		}
+		public static void deletarProduto() {
+			System.out.printf("Digite o ID do produto a ser deletado: ");
+			int id = leia.nextInt();
+			leia.nextLine();
+			
+			Optional<Produto> produto = hairMagiaController.buscarNaCollection(id);
+			if (produto.isPresent()) {
+				System.out.printf("\nTem certeza que voce deseja excluir o produto %d? (S / N)", id);
+				String confirmacao = leia.nextLine();
+				
+				if (confirmacao.equalsIgnoreCase("S"))
+					hairMagiaController.deletar(id);
+				else
+					System.out.println("\nOperacao cancelada!");
+			}else {
+				System.out.printf("\nO produto com o ID %d nao foi encontrado!",id);
+			}
+		}
+		public static void atualizarProduto() {
+		    System.out.printf("Digite o ID do produto: ");
+		    int id = leia.nextInt();
+		    leia.nextLine();
+
+		    Optional<Produto> produto = hairMagiaController.buscarNaCollection(id);
+		    if (produto.isPresent()) {
+		        String nome = produto.get().getNome();
+		        int tipo = produto.get().getTipo();
+		        float preco = produto.get().getPreco();
+
+		        System.out.printf("Nome atual: %s" + "%nDigite o novo nome (ENTER para manter): ", nome);
+		        String entrada = leia.nextLine();
+
+		        nome = entrada.isEmpty() ? nome : entrada;
+
+		        System.out.printf("Preço atual: %.2f" + "%nDigite o novo preço (ENTER para manter): ", preco);
+		        entrada = leia.nextLine();
+		        preco = entrada.isEmpty() ? preco : Float.parseFloat(entrada.replace(",", "."));
+		        Produto produtoAtualizado = null;
+		        switch (tipo) {
+		            case 1:
+		                produtoAtualizado = new Mascara(id, nome, tipo, preco);
+		                break;
+		            case 2:
+		                produtoAtualizado = new ShampooCondicionador(id, nome, tipo, preco);
+		                break;
+		            case 3:
+		                produtoAtualizado = new CremePentear(id, nome, tipo, preco);
+		                break;
+		        }
+		        hairMagiaController.atualizar(produtoAtualizado);
+		        System.out.println("\nProduto atualizado com sucesso!");
+		    } else {
+		        System.out.printf("\nO produto com o ID %d nao foi encontrado!", id);
+		    }
+		}
+}
